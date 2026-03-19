@@ -1,0 +1,22 @@
+=== COLUMN REFERENCE FOR COUNTY BUDGET DATA ===
+
+CALENDAR_YEAR: The fiscal year the data covers (e.g., 2023)
+ENTITY_NAME: Full name of the county entity (e.g., "County of Suffolk")
+COUNTY: Short county name (e.g., "Suffolk")
+PERIOD_START: Start date of the fiscal period
+PERIOD_END: End date of the fiscal period
+ACCOUNT_CODE: Budget category code (e.g., "A10101" for Legislative Board personal services)
+ACCOUNT_CODE_NARRATIVE: Plain-English name for the account code (e.g., "Legislative Board")
+ACCOUNT_CODE_SECTION: One of four types - REVENUE, EXPENDITURE, GL (General Ledger/Balance Sheet), FBNP (Fund Balance Non-Property)
+LEVEL_1_CATEGORY: Broad spending/revenue category (e.g., "Public Safety", "Education", "Sales and Use Tax")
+LEVEL_2_CATEGORY: More specific subcategory within Level 1 (e.g., "Administration", "Police")
+OBJECT_OF_EXPENDITURE: For expenditures only - what the money was spent on (e.g., "Personal Services", "Equipment and Capital Outlay", "Contractual")
+AMOUNT: Dollar amount (integer, no formatting)
+
+=== TIPS FOR QUERYING ===
+- Filter by ACCOUNT_CODE_SECTION to separate spending (EXPENDITURE) from income (REVENUE)
+- Use LEVEL_1_CATEGORY for broad comparisons (e.g., Public Safety vs Education spending)
+- Use LEVEL_2_CATEGORY for more specific analysis
+- OBJECT_OF_EXPENDITURE tells you if money went to salaries, equipment, or contracts
+- Group by CALENDAR_YEAR and COUNTY for trend analysis
+- Some codes end in 1 (Personal Services), 2 (Equipment), 4 (Contractual) — these are sub-breakdowns of the parent code

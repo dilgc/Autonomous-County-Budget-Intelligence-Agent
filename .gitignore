@@ -1,0 +1,22 @@
+# API keys
+.env
+
+# Python virtual environment
+venv/
+
+# ChromaDB local database (rebuilt by build_rag.py)
+chroma_db/
+
+# Large data files (shared via Google Drive — too big for GitHub)
+data/clean/*.csv
+
+# Agent output (charts, reports)
+output/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS files
+.DS_Store
+Thumbs.db
