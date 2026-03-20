@@ -1,0 +1,125 @@
+=== NYS COUNTY BUDGET CATEGORY QUICK REFERENCE ===
+
+This guide maps common query terms to the correct LEVEL_1_CATEGORY and LEVEL_2_CATEGORY values
+in the clean_county_expenditures.csv and clean_county_revenue.csv datasets.
+
+--- EXPENDITURE LEVEL_1_CATEGORIES ---
+
+Category: General Government
+  Subcategories: Administration, Financial Administration, Tax Collection, Special Items
+  Common codes: Legislative Board (A10101-A10104), District Attorney (A11651-A11654),
+    Public Defender (A11704), County Clerk (A14101), Finance (A13451), Elections (A12801)
+  Query terms: legislative board, administration, county clerk, finance, elections, tax
+
+Category: Public Safety
+  Subcategories: Public Safety Administration, Police, Traffic Control, Fire,
+    Correction/Jail, Emergency Preparedness, Building Safety
+  Common codes: Public Safety Admin (A30101), Sheriff/Police (A31101), Jail/Correction (A31601),
+    Fire (A34101), Emergency Medical (A34201), Building Safety (A36201)
+  Query terms: police, sheriff, fire department, jail, prison, corrections, emergency, safety, crime
+
+Category: Health
+  Subcategories: Public Health Administration, Environmental Health, Mental Health,
+    Substance Abuse, Medical Examiner
+  Common codes: Public Health (A40101), Mental Health (A43101), Substance Abuse (A43201),
+    Medical Examiner (A40501), Environmental Health (A40201)
+  Query terms: healthcare, health services, mental health, public health, medical, hospital,
+    substance abuse, addiction, environmental health
+
+Category: Transportation
+  Subcategories: Highways, Bridges, Snow Removal, Traffic Control, Public Transportation
+  Common codes: Highway Administration (A50101), Machinery (A51401), Roads (A54101),
+    Bridge (A55101), Snow Removal (A56101), Airport (A57101), Bus Transportation (A58101)
+  Query terms: highway, roads, bridges, transportation, transit, airport, bus, snow removal,
+    traffic, infrastructure, street maintenance
+
+Category: Education
+  Subcategories: Community College, Library, BOCES
+  Common codes: Community College Tuition (A24904), Library (A74101), BOCES (A29104)
+  Query terms: education, school, college, library, learning, BOCES, community college, tuition
+
+Category: Social Services
+  Subcategories: Administration, Family Assistance, Child Services, Medicaid, Foster Care,
+    Child Support, Veterans
+  Common codes: Social Services Admin (A60101), Family Assistance (A60101), Medicaid (A63001),
+    Foster Care (A61401), Child Support (A62601), Day Care (A62801)
+  Query terms: social services, welfare, medicaid, foster care, family assistance, child welfare,
+    daycare, food stamps, SNAP, housing assistance, poverty
+
+Category: Employee Benefits
+  Subcategories: Retirement, Health Insurance, Workers Compensation, Social Security
+  Common codes: Retirement (A90108), Workers Comp (A90108), Health Insurance (A90108),
+    Social Security (A90308), Medicare (A90408)
+  Query terms: employee benefits, retirement, pension, health insurance, workers compensation,
+    social security, payroll taxes, benefits
+
+Category: Debt Service
+  Subcategories: Principal, Interest, Bond
+  Common codes: Debt Principal (A97106), Debt Interest (A97206)
+  Query terms: debt, bonds, debt service, interest payments, principal, borrowing
+
+Category: Culture and Recreation
+  Subcategories: Parks, Recreation, Arts, Museums, Celebrations
+  Common codes: Parks (A71101), Recreation (A72101), Museum (A74501), Library (A74101)
+  Query terms: parks, recreation, museum, arts, culture, library, sports, entertainment
+
+Category: Community Services
+  Subcategories: Constituent Services, Economic Development, Housing
+  Common codes: Veterans Services (A65101), Consumer Affairs (A65201), Economic Development (A68901)
+  Query terms: community services, veterans, consumer affairs, economic development, housing
+
+Category: Economic Development
+  Subcategories: Planning, Development, Tourism
+  Common codes: Planning (A80201), Economic Development (A68901)
+  Query terms: economic development, planning, tourism, business development, workforce
+
+Category: Sanitation
+  Subcategories: Sanitation Administration, Sewage, Landfill, Recycling
+  Common codes: Sanitation Admin (A81401), Sewage (A81701), Landfill (A81401)
+  Query terms: sanitation, waste management, recycling, sewage, landfill, garbage
+
+Category: Utilities
+  Subcategories: Electric, Gas, Water
+  Query terms: utilities, electric, gas, water, energy
+
+Category: Other Uses
+  Subcategories: Interfund Transfers, Special Uses
+  Query terms: transfers, interfund, special uses, contingency
+
+--- REVENUE LEVEL_1_CATEGORIES ---
+
+Category: Real Property Tax
+  Query terms: property tax, real estate tax, ad valorem
+
+Category: Sales and Use Tax
+  Query terms: sales tax, use tax, retail tax
+
+Category: Other Taxes
+  Query terms: other taxes, mortgage tax, hotel tax, occupancy tax
+
+Category: Departmental Income
+  Query terms: fees, licenses, permits, charges for services, departmental income
+
+Category: Intergovernmental Revenue
+  Query terms: state aid, federal aid, grants, intergovernmental
+
+Category: Miscellaneous Revenue
+  Query terms: interest, fines, miscellaneous revenue, charges
+
+--- USEFUL QUERY PATTERNS ---
+
+To analyze legislative board spending:
+  Filter: level_1_category = 'General Government', level_2_category = 'Administration'
+  Or: account_code_narrative LIKE '%Legislative%'
+
+To analyze highway/transportation spending:
+  Filter: level_1_category = 'Transportation'
+
+To compare counties:
+  Group by: county, level_1_category, sum(amount)
+
+To analyze trends over time:
+  Group by: calendar_year, level_1_category, sum(amount)
+
+To find the largest spending categories:
+  Group by: level_1_category, sum(amount), order by sum desc
