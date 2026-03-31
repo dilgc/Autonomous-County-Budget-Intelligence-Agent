@@ -4,7 +4,3 @@ pandas
 matplotlib
 chromadb
 streamlit
-crewai
-crewai-tools
-langchain
-langchain-anthropic
