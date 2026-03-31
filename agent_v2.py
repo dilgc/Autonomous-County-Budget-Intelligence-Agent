@@ -300,6 +300,21 @@ def run_agent(question: str, df: pd.DataFrame, collection, api_client: anthropic
 
 
 # ──────────────────────────────────────────────────────────────
+# CONVENIENCE WRAPPER (for testing / external callers)
+# ──────────────────────────────────────────────────────────────
+def run_pipeline(question: str) -> dict:
+    """Self-contained entry point: initializes data, ChromaDB, and API client,
+    then runs the full pipeline for a single question."""
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if not api_key:
+        raise ValueError("ANTHROPIC_API_KEY not found in .env file")
+    api_client = anthropic.Anthropic(api_key=api_key)
+    df = load_data()
+    collection = get_chroma_collection()
+    return run_agent(question, df, collection, api_client)
+
+
+# ──────────────────────────────────────────────────────────────
 # ENTRY POINT
 # ──────────────────────────────────────────────────────────────
 if __name__ == "__main__":
