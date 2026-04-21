@@ -254,10 +254,53 @@ def escape_dollars(text: str) -> str:
 
 
 # ──────────────────────────────────────────────────────────────
+# SAMPLE / FALLBACK DATA
+# ──────────────────────────────────────────────────────────────
+@st.cache_data(show_spinner=False)
+def build_sample_data(section_filter: str | None = None) -> pd.DataFrame:
+    """Return a small but structurally valid demo DataFrame when CSVs are missing."""
+    rows = [
+        # Expenditures — Suffolk
+        ("Suffolk", "County of Suffolk", 2023, "2023-01-01", "2023-12-31", "A30101", "Police Department", "EXPENDITURE", "Public Safety", "Police", "Personal Services",     85_000_000.0),
+        ("Suffolk", "County of Suffolk", 2023, "2023-01-01", "2023-12-31", "A30102", "Police Equipment",  "EXPENDITURE", "Public Safety", "Police", "Equipment and Capital Outlay", 4_200_000.0),
+        ("Suffolk", "County of Suffolk", 2023, "2023-01-01", "2023-12-31", "A20101", "Public Schools",    "EXPENDITURE", "Education",     "K-12 Education", "Personal Services", 120_000_000.0),
+        ("Suffolk", "County of Suffolk", 2023, "2023-01-01", "2023-12-31", "A10101", "Legislative Board", "EXPENDITURE", "General Government", "Administration", "Personal Services", 2_500_000.0),
+        ("Suffolk", "County of Suffolk", 2023, "2023-01-01", "2023-12-31", "A40101", "Road Maintenance",  "EXPENDITURE", "Transportation/Highways", "Highways", "Contractual", 15_000_000.0),
+        ("Suffolk", "County of Suffolk", 2024, "2024-01-01", "2024-12-31", "A30101", "Police Department", "EXPENDITURE", "Public Safety", "Police", "Personal Services",     88_500_000.0),
+        ("Suffolk", "County of Suffolk", 2024, "2024-01-01", "2024-12-31", "A20101", "Public Schools",    "EXPENDITURE", "Education",     "K-12 Education", "Personal Services", 125_000_000.0),
+        ("Suffolk", "County of Suffolk", 2024, "2024-01-01", "2024-12-31", "A40101", "Road Maintenance",  "EXPENDITURE", "Transportation/Highways", "Highways", "Contractual", 16_200_000.0),
+        # Expenditures — Nassau
+        ("Nassau", "County of Nassau",   2023, "2023-01-01", "2023-12-31", "A30101", "Police Department", "EXPENDITURE", "Public Safety", "Police", "Personal Services",     79_000_000.0),
+        ("Nassau", "County of Nassau",   2023, "2023-01-01", "2023-12-31", "A20101", "Public Schools",    "EXPENDITURE", "Education",     "K-12 Education", "Personal Services", 110_000_000.0),
+        ("Nassau", "County of Nassau",   2023, "2023-01-01", "2023-12-31", "A10101", "Legislative Board", "EXPENDITURE", "General Government", "Administration", "Personal Services", 2_100_000.0),
+        ("Nassau", "County of Nassau",   2024, "2024-01-01", "2024-12-31", "A30101", "Police Department", "EXPENDITURE", "Public Safety", "Police", "Personal Services",     82_000_000.0),
+        ("Nassau", "County of Nassau",   2024, "2024-01-01", "2024-12-31", "A20101", "Public Schools",    "EXPENDITURE", "Education",     "K-12 Education", "Personal Services", 115_000_000.0),
+        # Revenue — Suffolk
+        ("Suffolk", "County of Suffolk", 2023, "2023-01-01", "2023-12-31", "A1001",  "Property Tax",      "REVENUE", "General Government", "Tax Revenue", None,  210_000_000.0),
+        ("Suffolk", "County of Suffolk", 2023, "2023-01-01", "2023-12-31", "A1002",  "State Aid",         "REVENUE", "General Government", "Intergovernmental", None, 45_000_000.0),
+        ("Suffolk", "County of Suffolk", 2024, "2024-01-01", "2024-12-31", "A1001",  "Property Tax",      "REVENUE", "General Government", "Tax Revenue", None,  220_000_000.0),
+        # Revenue — Nassau
+        ("Nassau",  "County of Nassau",  2023, "2023-01-01", "2023-12-31", "A1001",  "Property Tax",      "REVENUE", "General Government", "Tax Revenue", None,  195_000_000.0),
+        ("Nassau",  "County of Nassau",  2024, "2024-01-01", "2024-12-31", "A1001",  "Property Tax",      "REVENUE", "General Government", "Tax Revenue", None,  205_000_000.0),
+    ]
+    cols = ["county", "entity_name", "calendar_year", "period_start", "period_end",
+            "account_code", "account_code_narrative", "account_code_section",
+            "level_1_category", "level_2_category", "object_of_expenditure", "amount"]
+    df = pd.DataFrame(rows, columns=cols)
+    df["calendar_year"] = df["calendar_year"].astype("int64")
+    df["amount"] = df["amount"].astype("float64")
+    if section_filter:
+        df = df[df["account_code_section"] == section_filter].reset_index(drop=True)
+    return df
+
+
+# ──────────────────────────────────────────────────────────────
 # CACHED DATA LOADING
 # ──────────────────────────────────────────────────────────────
 @st.cache_data(show_spinner=False)
 def load_expenditure_data():
+    if not os.path.exists(EXP_CSV):
+        return None
     df = pd.read_csv(EXP_CSV)
     df.columns = df.columns.str.lower()
     return df
@@ -582,30 +625,44 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Load data
+using_sample_data = False
 try:
     if dataset_choice == "Expenditures":
         df = load_expenditure_data()
         dataset_label = "Expenditure"
+        if df is None:
+            df = build_sample_data(section_filter="EXPENDITURE")
+            using_sample_data = True
     elif dataset_choice == "Revenue":
         df = load_revenue_data()
         dataset_label = "Revenue"
         if df is None:
-            st.error("Revenue CSV not found. Place clean_county_revenue.csv in data/clean/")
-            st.stop()
+            df = build_sample_data(section_filter="REVENUE")
+            using_sample_data = True
     else:
         df = load_combined_data()
         dataset_label = "Combined"
         if df is None:
-            st.error("Combined CSV not found. Place clean_county_data.csv in data/clean/")
-            st.stop()
+            df = build_sample_data()
+            using_sample_data = True
     collection = load_chroma_collection()
 except Exception as e:
     st.error(f"Failed to load data or ChromaDB: {e}")
     st.error("Make sure you've run python build_rag.py and your CSVs are in data/clean/")
     st.stop()
 
+if using_sample_data:
+    st.warning(
+        "**Demo Mode — Sample Data:** The full dataset CSV was not found in `data/clean/`. "
+        "A small built-in sample (2 counties, 2023–2024) is being used so you can explore "
+        "the interface. Results will not reflect real budget figures. "
+        "Place the production CSVs in `data/clean/` and restart to use live data.",
+        icon="⚠️",
+    )
+
 # Metrics
 years = sorted(df["calendar_year"].dropna().unique().astype(int).tolist())
+demo_badge = ' <span style="background:#f59e0b;color:#fff;font-size:0.65rem;padding:2px 7px;border-radius:4px;vertical-align:middle;margin-left:6px;">DEMO</span>' if using_sample_data else ""
 st.markdown(f"""
 <div class="metrics-container">
     <div class="metric-item">
@@ -622,7 +679,7 @@ st.markdown(f"""
     </div>
     <div class="metric-item">
         <div class="label">Active Dataset</div>
-        <div class="value">{dataset_label}</div>
+        <div class="value">{dataset_label}{demo_badge}</div>
     </div>
 </div>
 """, unsafe_allow_html=True)
